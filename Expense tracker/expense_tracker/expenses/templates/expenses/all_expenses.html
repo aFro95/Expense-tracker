@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}All Expenses{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>All Expenses</h1>
+    <div class="row">
+        <div class="col-md-6">
+            <form method="get" action="{% url 'all_expenses' %}">
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <label for="category">Category:</label>
+                        <select class="form-control" id="category" name="category">
+                            <option value="all">All</option>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}" {% if selected_category == category.id %}selected{% endif %}>{{ category.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group col-md-12">
+                        <label for="from_date">From:</label>
+                        <input type="text" class="form-control datepicker" id="from_date" name="from_date" value="{{ from_date }}">
+                    </div>
+                    <div class="form-group col-md-12">
+                        <label for="to_date">To:</label>
+                        <input type="text" class="form-control datepicker" id="to_date" name="to_date" value="{{ to_date }}">
+                    </div>
+                    <div class="form-group col-md-12">
+                        <label for="sort_by">Sort by:</label>
+                        <select class="form-control" id="sort_by" name="sort_by">
+                            <option value="none" {% if sort_by == 'none' %}selected{% endif %}>None</option>
+                            <option value="date_asc" {% if sort_by == 'date_asc' %}selected{% endif %}>Date Ascending</option>
+                            <option value="date_desc" {% if sort_by == 'date_desc' %}selected{% endif %}>Date Descending</option>
+                            <option value="amount_asc" {% if sort_by == 'amount_asc' %}selected{% endif %}>Amount Ascending</option>
+                            <option value="amount_desc" {% if sort_by == 'amount_desc' %}selected{% endif %}>Amount Descending</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-info">Apply</button>
+            </form>
+        </div>
+        <div class="col-md-6">
+            <form method="post" enctype="multipart/form-data" action="{% url 'import_expenses' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="file">Import Expenses:</label>
+                    <input type="file" name="file" class="form-control-file" id="file">
+                </div>
+                <button type="submit" class="btn btn-info">Import</button>
+            </form>
+            <a href="{% url 'export_expenses' 'csv' %}" class="btn btn-success mt-2">Export to CSV</a>
+            <a href="{% url 'export_expenses' 'excel' %}" class="btn btn-success mt-2">Export to Excel</a>
+            <form method="post" action="{% url 'delete_all_expenses' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger mt-2">Delete All Expenses</button>
+            </form>
+        </div>
+    </div>
+
+    <br><br>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Amount</th>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for expense in expenses %}
+            <tr>
+                <td>{{ expense.description }}</td>
+                <td>{{ expense.amount }}</td>
+                <td>{{ expense.date }}</td>
+                <td>{{ expense.category.name }}</td>
+                <td>
+                    <form method="post" action="{% url 'delete_expense' expense.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="category" value="{{ selected_category }}">
+                        <input type="hidden" name="from_date" value="{{ from_date }}">
+                        <input type="hidden" name="to_date" value="{{ to_date }}">
+                        <input type="hidden" name="sort_by" value="{{ sort_by }}">
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script>
+    $(function() {
+        $(".datepicker").datepicker({
+            dateFormat: 'dd-mm-yy',
+            firstDay: 1,
+            autoclose: true,
+            todayHighlight: true
+        });
+    });
+</script>
+{% endblock %}

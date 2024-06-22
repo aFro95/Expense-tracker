@@ -1,0 +1,7 @@
+django
+pandas
+openpyxl
+django-extensions
+decouple
+matplotlib
+requests

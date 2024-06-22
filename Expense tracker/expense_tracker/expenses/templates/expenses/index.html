@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Expense Tracker</h1>
+    <div class="row">
+        <div class="col-12">
+            <ul class="list-group mb-4">
+                {% for expense in expenses %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>{{ expense.description }}: {{ expense.amount }} {{ expense.currency }} on {{ expense.date }} in {{ expense.category.name }}</span>
+                    <form method="post" action="{% url 'delete_expense' expense.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <h2>Budget Overview</h2>
+    <div class="row">
+        <div class="col-12">
+            <ul class="list-group">
+                {% for category, data in total_expenses_by_category.items %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>{{ category }}: {{ data.amount }} {{ data.currency }}</span>
+                    {% if data.limit %}
+                        <span class="badge rounded-pill 
+                            {% if data.amount > data.limit %}bg-danger{% elif data.amount == data.limit %}bg-warning{% else %}bg-success{% endif %}">
+                            Limit: {{ data.limit }} {{ data.currency }} 
+                            {% if data.amount > data.limit %}(Exceeded){% elif data.amount == data.limit %}(At Limit){% endif %}
+                        </span>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

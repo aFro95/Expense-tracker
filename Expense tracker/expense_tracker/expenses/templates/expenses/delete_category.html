@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="mt-5">Delete Category</h1>
+<p>Are you sure you want to delete the category "{{ category.name }}"?</p>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Yes, delete</button>
+    <a href="{% url 'manage_categories' %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}
